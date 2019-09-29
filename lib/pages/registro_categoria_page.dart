@@ -9,8 +9,32 @@ class RegistroCategoriaPage extends StatefulWidget {
 class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-       child: Text("Registro categoria"),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Registrar Categoria"),
+      ),
+      body: Container(
+        margin: const EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              decoration: InputDecoration(labelText: "Nombre Categoria"),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: MaterialButton(
+                  color: Colors.lightGreen,
+                  minWidth: double.infinity,
+                  padding: EdgeInsets.all(12.0),
+                  child: Text("Guardar", style: TextStyle(fontSize: 20.0)),
+                  onPressed: () {},
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
