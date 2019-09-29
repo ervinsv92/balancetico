@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:balancetico/models/BETipoTransaccion.dart';
+export 'package:balancetico/models/BETipoTransaccion.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';

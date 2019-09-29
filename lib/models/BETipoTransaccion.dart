@@ -3,7 +3,7 @@ class BETipoTransaccion{
   String nombre;
   String tipo;
 
-  BETipoTransaccion({this.idTipoTransaccion, this.nombre, this.tipo});
+  BETipoTransaccion({this.idTipoTransaccion = 0, this.nombre, this.tipo});
 
   factory BETipoTransaccion.fromJson(Map<String, dynamic> json) => new BETipoTransaccion(
     idTipoTransaccion: json["idTipoTransaccion"],

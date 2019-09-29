@@ -11,7 +11,7 @@ class ListaCategoriasPage extends StatefulWidget {
 class _ListaCategoriasPageState extends State<ListaCategoriasPage> {
   final String rutaActiva = Routes.listaCategoria;
 
-  String _cmbTipoTransaccion;
+  String _cmbTipoTransaccion = "Ingreso";
 
   @override
   Widget build(BuildContext context) {
