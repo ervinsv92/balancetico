@@ -12,7 +12,8 @@ class DBProvider{
   static final DBProvider db = DBProvider._();//Constructor privado para que solo se cree una vez
 
   //Nombres de tablas
-  final String _TIPO_TRANSACCION_TABLA = "TipoTransaccion";
+  final String _tipo_transaccion_tabla = "TipoTransaccion";
+  final String _transaccion_tabla = "Transaccion";
 
   DBProvider._();
 
@@ -34,8 +35,8 @@ class DBProvider{
       onCreate: (Database db, int version) async {
         await db.execute(
           "CREATE TABLE TipoTransaccion ("
-          "idTipoTransaccion INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-          "nombre TEXT NOT NULL UNIQUE,"
+          "idTipoTransaccion INTEGER PRIMARY KEY AUTOINCREMENT,"
+          "nombre TEXT NOT NULL,"
           "tipo TEXT NOT NULL"
           ")"
         );
@@ -54,38 +55,53 @@ class DBProvider{
   }
 
   //Metodos db
-  guardarCategoriaEjemplo(BETipoTransaccion tipoTransaccion) async{
+  Future<int> guardarTipoTransaccion(BETipoTransaccion tipoTransaccion) async{
     final db = await database;
     final res = await db.rawInsert(
-      "INSERT INTO TipoTransaccion (idTipoTransaccion, nombre, tipo)"
-      "VALUES(${tipoTransaccion.idTipoTransaccion}, '${ tipoTransaccion.nombre }', '${ tipoTransaccion.tipo }');"
+      "INSERT INTO TipoTransaccion (nombre, tipo) "
+      "VALUES(?, ?);", [tipoTransaccion.nombre, tipoTransaccion.tipo]
     );
     return res;
   }
 
-  Future<int> guardarCategoria(BETipoTransaccion tipoTransaccion) async{
+  Future<int> guardarTipoTransaccionNoSirve(BETipoTransaccion tipoTransaccion) async{
     final db = await database;
-    final res = await db.insert(_TIPO_TRANSACCION_TABLA, tipoTransaccion.toJson());
+    final res = await db.insert(_tipo_transaccion_tabla, tipoTransaccion.toJson());
     return res;
   }
 
   Future<int> actualizarTipoTransaccion(BETipoTransaccion tipoTransaccion) async{
     final db = await database;
-    final res = await db.update(_TIPO_TRANSACCION_TABLA, 
+    final res = await db.update(_tipo_transaccion_tabla, 
     tipoTransaccion.toJson(), where:"idTipoTransaccion = ?", whereArgs: [tipoTransaccion.idTipoTransaccion]);
     return res;
   }
 
+  Future<bool> existeTipoTransaccion(BETipoTransaccion tipoTransaccion) async{
+    final db = await database;
+    final res = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $_tipo_transaccion_tabla WHERE idTipoTransaccion <> ? AND nombre = ? AND tipo = ?', 
+    [tipoTransaccion.idTipoTransaccion, tipoTransaccion.nombre, tipoTransaccion.tipo]));
+
+    return res > 0 ? true:false;
+  }
+
+  Future<bool> existeTransaccionDeTipoTransaccion(int idTipoTransaccion) async{
+    final db = await database;
+    final res = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $_transaccion_tabla WHERE idTipoTransaccion = ?', [idTipoTransaccion]));
+
+    return res > 0 ? true:false;
+  }
+
   Future<BETipoTransaccion> obtenerTipoTransaccionId(int idTipoTransaccion) async {
     final db = await database;
-    final res = await db.query(_TIPO_TRANSACCION_TABLA, where: "idTipoTransaccion = ?", whereArgs: [idTipoTransaccion]);
+    final res = await db.query(_tipo_transaccion_tabla, where: "idTipoTransaccion = ?", whereArgs: [idTipoTransaccion]);
 
     return res.isNotEmpty ? BETipoTransaccion.fromJson(res.first) : null;
   }
 
   Future<List<BETipoTransaccion>> obtenerTiposTransaccionPorTipo(String tipo) async {
     final db = await database;
-    final res = await db.query(_TIPO_TRANSACCION_TABLA, where: "tipo = ?", whereArgs: [tipo]);
+    final res = await db.query(_tipo_transaccion_tabla, where: "tipo = ?", whereArgs: [tipo]);
 
     List<BETipoTransaccion> list = res.isNotEmpty 
     ? res.map((tipoTransaccion) => BETipoTransaccion.fromJson(tipoTransaccion)).toList() : [];
@@ -95,13 +111,13 @@ class DBProvider{
 
   Future<int> borrarTipoTransaccion(int idTipoTransaccion) async{
     final db = await database;
-    final res = db.delete(_TIPO_TRANSACCION_TABLA, where:"idTipoTransaccion = ?", whereArgs: [idTipoTransaccion]);
+    final res = db.delete(_tipo_transaccion_tabla, where:"idTipoTransaccion = ?", whereArgs: [idTipoTransaccion]);
     return res;
   }
 
   Future<int> borrarTipoTransaccionTodos() async{
     final db = await database;
-    final res = db.rawDelete("DELETE FROM $_TIPO_TRANSACCION_TABLA");
+    final res = db.rawDelete("DELETE FROM $_tipo_transaccion_tabla");
     return res;
   }
 }

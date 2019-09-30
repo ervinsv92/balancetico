@@ -13,6 +13,7 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _txtNombreTransaccionController = TextEditingController();
   String _cmbTipoTransaccion = "Ingreso";
+  String _tituloPagina = "Registrar Tipo Transacción";
 
   @override
   void dispose() {
@@ -24,10 +25,57 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final BETipoTransaccion _tipoTransaccionParam = ModalRoute.of(context).settings.arguments;
+    if(_tipoTransaccionParam != null){
+      _cmbTipoTransaccion = _tipoTransaccionParam.tipo == "I"?"Ingreso":"Gasto";
+      _txtNombreTransaccionController.text = _tipoTransaccionParam.nombre;
+      _tituloPagina = "Modificar Tipo Transacción";
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Registrar Categoria"),
+        title: Text(_tituloPagina),
+        actions: <Widget>[
+          _tipoTransaccionParam != null?IconButton(
+            icon: Icon(Icons.delete, color: Colors.black,),
+            onPressed: (){
+              showDialog(
+                context: context,
+                builder: (BuildContext context){
+                  return AlertDialog(
+                    title: Text("Eliminar"),
+                    content: Text("¿Desea eliminar el tipo de transacción?"),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Si"),
+                        onPressed: (){
+                            DBProvider.db.existeTransaccionDeTipoTransaccion(_tipoTransaccionParam.idTipoTransaccion).then((data){
+                                if(!data){
+                                  DBProvider.db.borrarTipoTransaccion(_tipoTransaccionParam.idTipoTransaccion);
+                                  Navigator.of(context).pop();
+                                  Navigator.pop(context);
+                                }else{
+                                  _scaffoldKey.currentState.showSnackBar(
+                                          SnackBar(content: Text('El nombre del tipo de transacción ya existe. Intente de nuevo.'))); 
+                                }
+                            });
+                        },
+                      ),
+                      FlatButton(
+                        child: Text("No"),
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  );
+                }
+              );
+            },
+          ):Container()
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -74,26 +122,38 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: MaterialButton(
-                    color: Colors.lightGreen,
+                    color: Theme.of(context).primaryColor,
                     minWidth: double.infinity,
                     padding: EdgeInsets.all(12.0),
-                    child: Text("Guardar", style: TextStyle(fontSize: 20.0)),
+                    child: Text(
+                      "Guardar",
+                      style: TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
+                        BETipoTransaccion tipoTransaccion =
+                            new BETipoTransaccion(
+                                nombre: _txtNombreTransaccionController.text,
+                                tipo: _cmbTipoTransaccion[0]);
 
-                        BETipoTransaccion tipoTransaccion = new BETipoTransaccion(
-                          nombre: _txtNombreTransaccionController.text, 
-                          tipo: _cmbTipoTransaccion[0]);
+                        if(_tipoTransaccionParam != null){
+                          tipoTransaccion.idTipoTransaccion = _tipoTransaccionParam.idTipoTransaccion;
+                        }
 
-                        //print(tipoTransaccion.toJson());
-                        DBProvider.db.guardarCategoria(tipoTransaccion);
+                        DBProvider.db.existeTipoTransaccion(tipoTransaccion).then((data) {
+                          if (!data) {
+                            if(tipoTransaccion.idTipoTransaccion == 0){
+                              DBProvider.db.guardarTipoTransaccion(tipoTransaccion);
+                            }else{
+                              DBProvider.db.actualizarTipoTransaccion(tipoTransaccion);
+                            }
 
-                        // Si el formulario es válido, muestre un snackbar. En el mundo real, a menudo
-                        // desea llamar a un servidor o guardar la información en una base de datos
-                        /* _scaffoldKey.currentState.showSnackBar(
-                            SnackBar(content: Text('Processing Data'))); */
-
-                        Navigator.pop(context);
+                            Navigator.pop(context);
+                          }else{
+                            _scaffoldKey.currentState.showSnackBar(
+                            SnackBar(content: Text('El nombre del tipo de transacción ya existe. Intente de nuevo.'))); 
+                          }
+                        });
                       }
                     },
                   ),

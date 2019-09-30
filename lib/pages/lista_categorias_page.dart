@@ -1,4 +1,5 @@
 import 'package:balancetico/drawer/drawer.dart';
+import 'package:balancetico/providers/db_provider.dart';
 import 'package:balancetico/routes/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -51,54 +52,32 @@ class _ListaCategoriasPageState extends State<ListaCategoriasPage> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: <Widget>[
-                ListTile(
-                  title: Text("Lista 1"),
-                )
-              ],
-            ),
+            child: FutureBuilder<List<BETipoTransaccion>>(
+              future: DBProvider.db.obtenerTiposTransaccionPorTipo(_cmbTipoTransaccion[0]),
+              builder: (BuildContext context, AsyncSnapshot<List<BETipoTransaccion>> snapshot){
+                if(!snapshot.hasData){
+                  return Center(child: CircularProgressIndicator(),);
+                }
+
+                final tiposTransaccion = snapshot.data;
+
+                if(tiposTransaccion.length == 0){
+                  return Center(child: Text("No hay información"),);
+                }
+
+                return ListView.builder(
+                  itemCount: tiposTransaccion.length,
+                  itemBuilder: (context, i) => ListTile(
+                    trailing: Icon(Icons.arrow_right),
+                    title: Text(tiposTransaccion[i].nombre),
+                    onTap: (){
+                      Navigator.pushNamed(context, Routes.registroCategoria,arguments: tiposTransaccion[i]);
+                    },
+                  ),
+                );
+              },
+            )
           ),
-          Row(
-            children: <Widget>[
-              Container(
-                  width: 140.0,
-                  padding: EdgeInsets.all(10.0),
-                  color: Colors.green,
-                  child: RichText(
-                    textAlign: TextAlign.end,
-                    text: TextSpan(
-                        text: "2,000.00",
-                        style: TextStyle(
-                          fontSize: 20.0,
-                        )),
-                  )),
-              Container(
-                  width: 140.0,
-                  padding: EdgeInsets.all(10.0),
-                  color: Colors.red,
-                  child: RichText(
-                    textAlign: TextAlign.end,
-                    text: TextSpan(
-                        text: "500.00",
-                        style: TextStyle(
-                          fontSize: 20.0,
-                        )),
-                  )),
-            ],
-          ),
-          Container(
-              width: 280.0,
-              padding: EdgeInsets.all(10.0),
-              color: Colors.lightBlueAccent,
-              child: RichText(
-                textAlign: TextAlign.end,
-                text: TextSpan(
-                    text: "1,500.00",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                    )),
-              )),
         ],
       ),
       floatingActionButton: FloatingActionButton(

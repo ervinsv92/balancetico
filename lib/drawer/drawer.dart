@@ -23,7 +23,7 @@ class AppDrawer extends StatelessWidget {
               onTap: () =>
                   Navigator.pushReplacementNamed(context, Routes.balanceRango)),
           _createDrawerItem(
-              text: "Lista Categorias",
+              text: "Lista Tipo Transacción",
               ruta: Routes.listaCategoria,
               onTap: () => Navigator.pushReplacementNamed(
                   context, Routes.listaCategoria)),
@@ -34,7 +34,13 @@ class AppDrawer extends StatelessWidget {
 
   Widget _crearEncabezado() {
     return DrawerHeader(
-      child: Text("Encabezado drawer"),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(Icons.account_balance),
+          Text("Balancetico"),
+        ],
+      ),
     );
   }
 
