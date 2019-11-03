@@ -27,10 +27,12 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
   Widget build(BuildContext context) {
 
     final BETipoTransaccion _tipoTransaccionParam = ModalRoute.of(context).settings.arguments;
-    if(_tipoTransaccionParam != null){
+    if(_tipoTransaccionParam.idTipoTransaccion != 0){
       _cmbTipoTransaccion = _tipoTransaccionParam.tipo == "I"?"Ingreso":"Gasto";
       _txtNombreTransaccionController.text = _tipoTransaccionParam.nombre;
       _tituloPagina = "Modificar Tipo Transacción";
+    }else{
+      _cmbTipoTransaccion = _tipoTransaccionParam.tipo == "I"?"Ingreso":"Gasto";
     }
 
     return Scaffold(
@@ -38,7 +40,7 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
       appBar: AppBar(
         title: Text(_tituloPagina),
         actions: <Widget>[
-          _tipoTransaccionParam != null?IconButton(
+          _tipoTransaccionParam.idTipoTransaccion != 0?IconButton(
             icon: Icon(Icons.delete, color: Colors.black,),
             onPressed: (){
               showDialog(
@@ -86,6 +88,7 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
               Container(
                 child: DropdownButton<String>(
                   value: _cmbTipoTransaccion,
+                  disabledHint: Text(_cmbTipoTransaccion),
                   isExpanded: true,
                   icon: Icon(Icons.arrow_downward),
                   iconSize: 24,
@@ -95,11 +98,13 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                     height: 2,
                     color: Colors.lightGreen,
                   ),
-                  onChanged: (String newValue) {
+                  onChanged: 
+                  _tipoTransaccionParam.idTipoTransaccion == 0 ?
+                  (String newValue) {
                     setState(() {
                       _cmbTipoTransaccion = newValue;
                     });
-                  },
+                  }:null,
                   items: <String>['Ingreso', 'Gasto']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
@@ -127,7 +132,7 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                     padding: EdgeInsets.all(12.0),
                     child: Text(
                       "Guardar",
-                      style: TextStyle(fontSize: 20.0, color: Colors.white),
+                      style: TextStyle(fontSize: 20.0),
                     ),
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
@@ -136,7 +141,7 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                                 nombre: _txtNombreTransaccionController.text,
                                 tipo: _cmbTipoTransaccion[0]);
 
-                        if(_tipoTransaccionParam != null){
+                        if(_tipoTransaccionParam.idTipoTransaccion != 0){
                           tipoTransaccion.idTipoTransaccion = _tipoTransaccionParam.idTipoTransaccion;
                         }
 

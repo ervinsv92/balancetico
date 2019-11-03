@@ -67,12 +67,17 @@ class _ListaCategoriasPageState extends State<ListaCategoriasPage> {
 
                 return ListView.builder(
                   itemCount: tiposTransaccion.length,
-                  itemBuilder: (context, i) => ListTile(
-                    trailing: Icon(Icons.arrow_right),
-                    title: Text(tiposTransaccion[i].nombre),
-                    onTap: (){
-                      Navigator.pushNamed(context, Routes.registroCategoria,arguments: tiposTransaccion[i]);
-                    },
+                  itemBuilder: (context, i) => Column(
+                    children: <Widget>[
+                      ListTile(
+                        trailing: Icon(Icons.arrow_right),
+                        title: Text(tiposTransaccion[i].nombre),
+                        onTap: (){
+                          Navigator.pushNamed(context, Routes.registroCategoria,arguments: tiposTransaccion[i]);
+                        },
+                      ),
+                      Divider(height: 1.0,color: Theme.of(context).accentColor,)
+                    ],
                   ),
                 );
               },
@@ -83,7 +88,9 @@ class _ListaCategoriasPageState extends State<ListaCategoriasPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, Routes.registroCategoria);
+          BETipoTransaccion tipoTrans = new BETipoTransaccion();
+          tipoTrans.tipo = _cmbTipoTransaccion[0];
+          Navigator.pushNamed(context, Routes.registroCategoria, arguments: tipoTrans);
         },
       ),
     );

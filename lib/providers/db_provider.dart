@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:balancetico/models/BETipoTransaccion.dart';
+import 'package:balancetico/models/BETransaccion.dart';
 export 'package:balancetico/models/BETipoTransaccion.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -64,6 +65,15 @@ class DBProvider{
     return res;
   }
 
+  Future<int> guardarTransaccion(BETransaccion transaccion) async{
+    final db = await database;
+    final res = await db.rawInsert(
+      "INSERT INTO TipoTransaccion (idTipoTransaccion, monto, fechaRegistro) "
+      "VALUES(?, ?, datetime('now'));", [transaccion.tipoTransaccion.idTipoTransaccion, transaccion.monto]
+    );
+    return res;
+  }
+
   Future<int> guardarTipoTransaccionNoSirve(BETipoTransaccion tipoTransaccion) async{
     final db = await database;
     final res = await db.insert(_tipo_transaccion_tabla, tipoTransaccion.toJson());
@@ -81,6 +91,13 @@ class DBProvider{
     final db = await database;
     final res = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $_tipo_transaccion_tabla WHERE idTipoTransaccion <> ? AND nombre = ? AND tipo = ?', 
     [tipoTransaccion.idTipoTransaccion, tipoTransaccion.nombre, tipoTransaccion.tipo]));
+
+    return res > 0 ? true:false;
+  }
+
+  Future<bool> existenTiposTransaccion(String tipo) async{
+    final db = await database;
+    final res = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $_tipo_transaccion_tabla WHERE tipo = ?', [tipo]));
 
     return res > 0 ? true:false;
   }
