@@ -1,9 +1,12 @@
 import 'package:balancetico/models/BETipoTransaccion.dart';
+import 'package:balancetico/models/BETransaccion.dart';
 import 'package:balancetico/providers/db_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class RegistroTransaccionesPage extends StatefulWidget {
-  RegistroTransaccionesPage({Key key}) : super(key: key);
+  String tipoTransaccion = "";
+  RegistroTransaccionesPage({Key key, this.tipoTransaccion}) : super(key: key);
 
   _RegistroTransaccionesPageState createState() =>
       _RegistroTransaccionesPageState();
@@ -13,26 +16,30 @@ class _RegistroTransaccionesPageState extends State<RegistroTransaccionesPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _txtMontoController = TextEditingController();
+  final formatoFecha = DateFormat('dd/MM/yyyy');
   String _titulo = "Registro transacción";
   BETipoTransaccion _cmbTipoTransaccion;
   List<BETipoTransaccion> _listaTipoTransaccion;
+  DateTime _fecha = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toLocal();
+  
+  
   //Furure<BETipoTransaccion> fuTipoTransaccion;
   //BETransaccion _transaccion = new BETransaccion();
 
   @override
   void initState() {
     super.initState();
-    _obtenerTiposTransaccionPorTipo();
+    _obtenerTiposTransaccionPorTipo(widget.tipoTransaccion);
   }
 
-  void _obtenerTiposTransaccionPorTipo() async {
-    _listaTipoTransaccion =
-        await DBProvider.db.obtenerTiposTransaccionPorTipo("I");
+  void _obtenerTiposTransaccionPorTipo(String tipoTransaccion) async {
+    _listaTipoTransaccion = await DBProvider.db.obtenerTiposTransaccionPorTipo(tipoTransaccion);
     setState(() {});
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -77,14 +84,50 @@ class _RegistroTransaccionesPageState extends State<RegistroTransaccionesPage> {
                   decoration: InputDecoration(labelText: "Monto"),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value.isEmpty || value.trim() == "") {
-                      return "Debe digitar una categoría";
+                    if (value.isEmpty || value.trim() == "" || double.parse(value.trim()) == 0) {
+                      return "El monto debe ser un número mayor a 0";
                     }
                   },
                   controller: _txtMontoController,
                 ),
                 Divider(
                   height: 10.0,
+                ),
+                Row(
+                  children: <Widget>[
+                    //Text(formatoFecha.format(_fecha)),
+                    Icon(Icons.date_range),
+                    MaterialButton(
+                      color: Theme.of(context).primaryColor,
+                      //minWidth: double.infinity,
+                      //padding: EdgeInsets.all(4.0),
+                      child: Text(
+                        formatoFecha.format(_fecha),
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      onPressed: () {
+                        showDatePicker(
+                                context: context,
+                                initialDate: _fecha,
+                                firstDate: DateTime(2018),
+                                lastDate: DateTime(2030),
+                                builder: (BuildContext context, Widget child) {
+                                return Theme(
+                                  data: ThemeData.dark(),
+                                  child: child,
+                                );
+                              },
+                              ).then((fecha) => {
+
+                                if(fecha != null){
+                                  setState(() {
+                                      _fecha = fecha.toLocal();
+                                  })
+                                }
+                              });
+                      },
+                    ),
+                  ],
                 ),
                 Expanded(
                   child: Align(
@@ -97,7 +140,23 @@ class _RegistroTransaccionesPageState extends State<RegistroTransaccionesPage> {
                         "Guardar",
                         style: TextStyle(fontSize: 20.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+
+                        if(_cmbTipoTransaccion == null){
+                          _scaffoldKey.currentState.showSnackBar(SnackBar(content: 
+                        Text('Debe de seleccionar un tipo de transacción'))); 
+                          return false;
+                        }
+
+                        if (_formKey.currentState.validate()) {
+                            BETransaccion transaccion = new BETransaccion();
+                            transaccion.monto = double.parse(_txtMontoController.text);
+                            transaccion.tipoTransaccion = new BETipoTransaccion(idTipoTransaccion: _cmbTipoTransaccion.idTipoTransaccion);
+                            transaccion.fechaDocumento = _fecha;
+                            DBProvider.db.guardarTransaccion(transaccion);
+                            Navigator.pop(context);
+                        }
+                      },
                     ),
                   ),
                 )
