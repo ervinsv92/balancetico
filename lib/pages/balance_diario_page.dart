@@ -17,7 +17,7 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final String rutaActiva = Routes.balanceDiario;
-  final formatoFecha = DateFormat('dd/MM/yyyy HH:MM');
+  final formatoFecha = DateFormat('dd/MM/yyyy hh:mm');
   final formatoNumero = NumberFormat('###,###,###,###.0#');
 
   @override

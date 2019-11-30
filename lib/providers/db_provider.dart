@@ -62,7 +62,7 @@ class DBProvider {
     final db = await database;
     final res = await db.rawInsert(
         "INSERT INTO Transaccion (idTipoTransaccion, monto, fechaDocumento, fechaRegistro) "
-        "VALUES(?, ?, ?, strftime('%s','now'));",
+        "VALUES(?, ?, ?, strftime('%s','now', 'localtime'));",
         [
           transaccion.tipoTransaccion.idTipoTransaccion,
           transaccion.monto,

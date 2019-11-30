@@ -18,8 +18,8 @@ class BETransaccion{
     transaccion.idTransaccion = json["idTransaccion"];
     transaccion.monto = double.parse(json["monto"].toString());
     transaccion.tipoTransaccion = new BETipoTransaccion();
-    transaccion.fechaRegistro = new DateTime.fromMillisecondsSinceEpoch(int.parse(json["fechaRegistro"].toString())*1000);
-    transaccion.fechaDocumento = new DateTime.fromMillisecondsSinceEpoch(int.parse(json["fechaDocumento"].toString())*1000);
+    transaccion.fechaRegistro = new DateTime.fromMillisecondsSinceEpoch(int.parse(json["fechaRegistro"].toString())*1000).toLocal();
+    transaccion.fechaDocumento = new DateTime.fromMillisecondsSinceEpoch(int.parse(json["fechaDocumento"].toString())*1000).toLocal();
     transaccion.tipoTransaccion = new BETipoTransaccion();
     transaccion.tipoTransaccion.idTipoTransaccion = json["idTipoTransaccion"];
     transaccion.tipoTransaccion.nombre = json["nombre"];
