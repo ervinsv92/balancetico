@@ -17,7 +17,7 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final String rutaActiva = Routes.balanceDiario;
-  final formatoFecha = DateFormat('dd/MM/yyyy hh:mm');
+  final formatoFecha = DateFormat('dd/MM/yyyy HH:mm');
   final formatoNumero = NumberFormat('###,###,###,###.0#');
 
   @override
@@ -53,6 +53,7 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
                         title: Text(transacciones[i].tipoTransaccion.nombre),
                         //leading: Text("numero 1"),
                         subtitle: Text(formatoFecha.format(transacciones[i].fechaRegistro)),
+                        //subtitle: Text(transacciones[i].fechaRegistro.toString()),
                         onTap: (){
                           //Navigator.pushNamed(context, Routes.registroCategoria,arguments: transacciones[i]);
                         },
