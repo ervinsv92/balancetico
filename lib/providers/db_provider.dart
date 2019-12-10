@@ -225,6 +225,13 @@ class DBProvider {
     return res;
   }
 
+  Future<int> borrarTransaccion(int idTransaccion) async {
+    final db = await database;
+    final res = db.delete(_transaccion_tabla,
+        where: "idTransaccion = ?", whereArgs: [idTransaccion]);
+    return res;
+  }
+
   Future<int> borrarTipoTransaccionTodos() async {
     final db = await database;
     final res = db.rawDelete("DELETE FROM $_tipo_transaccion_tabla");
