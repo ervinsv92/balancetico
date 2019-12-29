@@ -147,8 +147,7 @@ class DBProvider {
 
   Future<List<BETransaccion>> obtenerTransaccionesDelDia() async {
     final db = await database;
-    //final res = await db.query(_transaccion_tabla, where: "fechaDocumento = date('now')");
-    //final res = await db.query(_transaccion_tabla);
+ 
     final String consulta =
         '''SELECT Transaccion.idTransaccion, Transaccion.monto, Transaccion.fechaDocumento, Transaccion.fechaRegistro, TipoTransaccion.idTipotransaccion, 
                                 TipoTransaccion.nombre, TipoTransaccion.tipo
@@ -162,31 +161,26 @@ class DBProvider {
         ? res.map((transaccion) => BETransaccion.fromJson(transaccion)).toList()
         : [];
 
-    if (res.isNotEmpty) {
-      final String consultaTotales =
-          '''SELECT round(SUM(CASE WHEN tipo = 'I' THEN monto ELSE 0 END), 2) AS montoIngresos, 
-                                      round(SUM(CASE WHEN tipo = 'G' THEN monto ELSE 0 END), 2) AS montoGastos
-                                      FROM $_transaccion_tabla 
-                                      JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
-                                      WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') = strftime('%Y-%m-%d 00:00:00', DATETIME('now', 'localtime'))''';
-      //final res = await db.rawQuery("SELECT *,  FROM $_transaccion_tabla JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') = strftime('%Y-%m-%d 00:00:00', DATETIME('now', 'localtime')) ORDER BY fechaRegistro");
-      //final res = await db.rawQuery("SELECT strftime('%Y-%m-%d', DATETIME('now', 'localtime')) || ' 00:00:00' AS local1, DATETIME('now', 'localtime') as local, fechaDocumento as f1, CAST(strftime('%s',strftime('%Y-%m-%d', DATETIME('now', 'localtime')) || ' 00:00:00') AS INTEGER) as f2, * FROM $_transaccion_tabla JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion");//WHERE fechaDocumento = CAST(strftime('%s',date('now')) AS INTEGER
-      //final res = await db.rawQuery("SELECT DATETIME(fechaDocumento, 'unixepoch', 'localtime') as prueba2, strftime('%Y-%m-%d 00:00:00', DATETIME('now', 'localtime')) as prueba, fechaDocumento as f1, CAST(strftime('%s',CAST(strftime('%Y-%m-%d', DATETIME('now', 'localtime')) || ' 00:00:00' AS TEXT)) AS INTEGER) as f2, * FROM $_transaccion_tabla JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion");//WHERE fechaDocumento = CAST(strftime('%s',date('now')) AS INTEGER
-      final resTotales = await db.rawQuery(consultaTotales);
+    return list;
+  }
 
-      if (resTotales.isNotEmpty) {
-        double totalIngresos = 0;
-        double totalGastos = 0;
-        Map<String, dynamic> mapTotales = resTotales.first;
+  Future<List<BETransaccion>> obtenerTransaccionesRango(DateTime fechaInicio, DateTime fechaFinal) async {
+    final db = await database;
+    String fechaI = fechaInicio.toLocal().toString();
+    String fechaF = fechaFinal.toLocal().toString();
 
-        totalIngresos = double.parse(mapTotales["montoIngresos"].toString());
-        totalGastos = double.parse(mapTotales["montoGastos"].toString());
+    final String consulta =
+        '''SELECT Transaccion.idTransaccion, Transaccion.monto, Transaccion.fechaDocumento, Transaccion.fechaRegistro, TipoTransaccion.idTipotransaccion, 
+                                TipoTransaccion.nombre, TipoTransaccion.tipo
+                                FROM $_transaccion_tabla 
+                                JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
+                                WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') BETWEEN strftime('%Y-%m-%d 00:00:00', '$fechaI') AND strftime('%Y-%m-%d 00:00:00', '$fechaF')
+                                ORDER BY fechaRegistro''';
+    final res = await db.rawQuery(consulta);
 
-        list[0].montoIngresos = totalIngresos;
-        list[0].montoGastos = totalGastos;
-        list[0].montoDiferencia = totalIngresos - totalGastos;
-      }
-    }
+    List<BETransaccion> list = res.isNotEmpty
+        ? res.map((transaccion) => BETransaccion.fromJson(transaccion)).toList()
+        : [];
 
     return list;
   }
@@ -200,6 +194,36 @@ class DBProvider {
                                     FROM $_transaccion_tabla 
                                     JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
                                     WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') = strftime('%Y-%m-%d 00:00:00', DATETIME('now', 'localtime'))''';
+    
+    final resTotales = await db.rawQuery(consultaTotales);
+
+    if (resTotales.isNotEmpty) {
+    
+      Map<String, dynamic> mapTotales = resTotales.first;
+
+      if(mapTotales["montoIngresos"] != null){
+        totales = new BETotalesTransaccion();
+        totales.totalIngresos = double.parse(mapTotales["montoIngresos"].toString());
+        totales.totalGastos = double.parse(mapTotales["montoGastos"].toString());
+        totales.totalDiferencia = totales.totalIngresos - totales.totalGastos;
+      }
+    }
+
+  return totales;
+  }
+
+  Future<BETotalesTransaccion> obtenerTotalesTransaccionesRango(DateTime fechaInicio, DateTime fechaFinal) async {
+    final db = await database;
+    BETotalesTransaccion totales = new BETotalesTransaccion();
+    String fechaI = fechaInicio.toLocal().toString();
+    String fechaF = fechaFinal.toLocal().toString();
+
+    final String consultaTotales =
+        '''SELECT round(SUM(CASE WHEN tipo = 'I' THEN monto ELSE 0 END), 2) AS montoIngresos, 
+                                    round(SUM(CASE WHEN tipo = 'G' THEN monto ELSE 0 END), 2) AS montoGastos
+                                    FROM $_transaccion_tabla 
+                                    JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
+                                    WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') BETWEEN strftime('%Y-%m-%d 00:00:00', '$fechaI') AND strftime('%Y-%m-%d 00:00:00', '$fechaF')''';
     
     final resTotales = await db.rawQuery(consultaTotales);
 
@@ -240,7 +264,7 @@ class DBProvider {
 
   static int convertirFechaASegundos(DateTime fecha) {
     var ms = fecha.millisecondsSinceEpoch;
-    var unix = (ms / 1000).round();
+    //var unix = (ms / 1000).round();
     return (ms / 1000).round();
   }
 }
