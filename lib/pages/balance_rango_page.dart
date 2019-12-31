@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class BalanceRangoPage extends StatefulWidget {
-  BalanceRangoPage({Key key}) : super(key: key);
+  int idTipoTransaccion = 0;
+  DateTime fechaInicio;
+  DateTime fechaFinal;
+  BalanceRangoPage({Key key, this.idTipoTransaccion, this.fechaInicio, this.fechaFinal}) : super(key: key);
 
   _BalanceRangoPageState createState() => _BalanceRangoPageState();
 }
@@ -16,10 +19,26 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
   final String rutaActiva = Routes.balanceRango;
   final formatoFecha = DateFormat('dd/MM/yyyy');
   final formatoNumero = NumberFormat('###,###,###,###.0#');
-  DateTime _fechaInicio = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toLocal();
-  DateTime _fechaFinal = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toLocal();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<BETransaccion> _listaTransaccion;
+  BETotalesTransaccion _totalesTransaccion;
 
+  @override
+  void initState() {
+    super.initState();
+    _obtenerTransaccion();
+    _obtenerTotalesTransaccion();
+  }
+
+  void _obtenerTransaccion() async {
+    _listaTransaccion = await DBProvider.db.obtenerTransaccionRango(widget.fechaInicio, widget.fechaFinal, widget.idTipoTransaccion);
+    setState(() {});
+  }
+
+  void _obtenerTotalesTransaccion() async{
+      _totalesTransaccion = await DBProvider.db.obtenerTotalesTransaccionRango(widget.fechaInicio, widget.fechaFinal, widget.idTipoTransaccion);
+      setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,120 +51,24 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
         padding: EdgeInsets.only(left: 5.0, right: 5.0),
         child: Column(
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Row(
-              children: <Widget>[
-                Text("Inicio: "),
-                Icon(Icons.date_range),
-                MaterialButton(
-                  color: Theme.of(context).primaryColor,
-                  //minWidth: double.infinity,
-                  //padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    formatoFecha.format(_fechaInicio),
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  onPressed: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: _fechaInicio,
-                      firstDate: DateTime(2018),
-                      lastDate: DateTime(2030),
-                      builder: (BuildContext context, Widget child) {
-                        return Theme(
-                          data: ThemeData.dark(),
-                          child: child,
-                        );
-                      },
-                    ).then((fecha) => {
-                          if (fecha != null)
-                            {
-                              setState(() {
-                                _fechaInicio = fecha.toLocal();
-                              })
-                            }
-                        });
-                  },
-                ),
-              ],
-            ),
-            Expanded(child: Container(),),
-            Row(
-              //crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text("Final: "),
-                Icon(Icons.date_range),
-                MaterialButton(
-                  color: Theme.of(context).primaryColor,
-                  //minWidth: double.infinity,
-                  //padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    formatoFecha.format(_fechaFinal),
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  onPressed: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: _fechaFinal,
-                      firstDate: DateTime(2018),
-                      lastDate: DateTime(2030),
-                      builder: (BuildContext context, Widget child) {
-                        return Theme(
-                          data: ThemeData.dark(),
-                          child: child,
-                        );
-                      },
-                    ).then((fecha) => {
-                          if (fecha != null)
-                            {
-                              setState(() {
-                                _fechaFinal = fecha.toLocal();
-                              })
-                            }
-                        });
-                  },
-                ),
-              ],
-            ),
-              ],
-            ),
             Expanded(
-              child: FutureBuilder(
-                future: DBProvider.db.obtenerTransaccionesRango(_fechaInicio, _fechaFinal),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<BETransaccion>> snapshot) {
-                      if (!snapshot.hasData) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  final transacciones = snapshot.data;
-
-                  if (transacciones.length == 0) {
-                    return Center(
-                      child: Text("No hay información"),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: transacciones.length,
+              child: ListView.builder(
+                    itemCount: _listaTransaccion.length,
                     itemBuilder: (context, i) => Column(
                       children: <Widget>[
                         ListTile(
                             trailing: Text(
-                                formatoNumero.format(transacciones[i].monto),
+                                formatoNumero.format(_listaTransaccion[i].monto),
                                 style: TextStyle(
                                     fontSize: 18.0,
                                     color:
-                                        transacciones[i].tipoTransaccion.tipo ==
+                                        _listaTransaccion[i].tipoTransaccion.tipo ==
                                                 "I"
                                             ? Colors.green
                                             : Colors.red)),
-                            title: Text(transacciones[i].tipoTransaccion.nombre),
+                            title: Text(_listaTransaccion[i].tipoTransaccion.nombre),
                             subtitle: Text(formatoFecha
-                                .format(transacciones[i].fechaDocumento)),
+                                .format(_listaTransaccion[i].fechaDocumento)),
                             onTap: () {
                             },
                             onLongPress: () {
@@ -160,7 +83,7 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                                         FlatButton(
                                           child: Text("Si"),
                                           onPressed: () {
-                                            DBProvider.db.borrarTransaccion(transacciones[i].idTransaccion).then((data) {
+                                            DBProvider.db.borrarTransaccion(_listaTransaccion[i].idTransaccion).then((data) {
                                                 if (data > 0) {
                                                 
                                                 Navigator.of(context).pop();
@@ -190,68 +113,24 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                         )
                       ],
                     ),
-                  );
-                    }
-              ),
+                  )
             ),
             Container(
-            padding: const EdgeInsets.only(top: 25.0),
+            padding: const EdgeInsets.only(top: 110.0),
             height: 150.0,
-            child: FutureBuilder(
-                future: DBProvider.db.obtenerTotalesTransaccionesRango(_fechaInicio, _fechaFinal),
-                builder: (BuildContext context,
-                    AsyncSnapshot<BETotalesTransaccion> snapshot) {
-                  final BETotalesTransaccion totales = snapshot.data;
-
-                  return Column(
+            child: Column(
                     children: <Widget>[
                       Row(
                         children: <Widget>[
                           Text(
-                            "Ingresos:",
+                            "Total:",
                             style: TextStyle(fontSize: 18.0),
                           ),
                           Container(
                             width: 16.0,
                           ),
                           Text(
-                            formatoNumero.format(totales.totalIngresos),
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                          Container(
-                            height: 30.0,
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Gastos:",
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                          Container(
-                            width: 28.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalGastos),
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                          Container(
-                            height: 30.0,
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Diferencia:",
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                          Container(
-                            width: 5.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalDiferencia),
+                            formatoNumero.format(_totalesTransaccion.totalDiferencia),
                             style: TextStyle(fontSize: 18.0),
                           ),
                           Container(
@@ -260,8 +139,7 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                         ],
                       )
                     ],
-                  );
-                }),
+                  )
           )
           ],
           

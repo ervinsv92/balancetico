@@ -164,7 +164,7 @@ class DBProvider {
     return list;
   }
 
-  Future<List<BETransaccion>> obtenerTransaccionesRango(DateTime fechaInicio, DateTime fechaFinal) async {
+  Future<List<BETransaccion>> obtenerTransaccionRango(DateTime fechaInicio, DateTime fechaFinal, int tipoTransaccion) async {
     final db = await database;
     String fechaI = fechaInicio.toLocal().toString();
     String fechaF = fechaFinal.toLocal().toString();
@@ -175,7 +175,30 @@ class DBProvider {
                                 FROM $_transaccion_tabla 
                                 JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
                                 WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') BETWEEN strftime('%Y-%m-%d 00:00:00', '$fechaI') AND strftime('%Y-%m-%d 00:00:00', '$fechaF')
+                                AND $_transaccion_tabla.idTipoTransaccion = $tipoTransaccion
                                 ORDER BY fechaRegistro''';
+    final res = await db.rawQuery(consulta);
+
+    List<BETransaccion> list = res.isNotEmpty
+        ? res.map((transaccion) => BETransaccion.fromJson(transaccion)).toList()
+        : [];
+
+    return list;
+  }
+
+  Future<List<BETransaccion>> obtenerTransaccionesRangoGrupo(DateTime fechaInicio, DateTime fechaFinal) async {
+    final db = await database;
+    String fechaI = fechaInicio.toLocal().toString();
+    String fechaF = fechaFinal.toLocal().toString();
+
+    final String consulta =
+        '''SELECT TipoTransaccion.idTipotransaccion, TipoTransaccion.nombre, TipoTransaccion.tipo, SUM(Transaccion.monto) AS monto,
+                  0 AS idTransaccion, 0 AS fechaDocumento, 0 AS fechaRegistro
+                  FROM $_transaccion_tabla 
+                  JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
+                  WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') BETWEEN strftime('%Y-%m-%d 00:00:00', '$fechaI') AND strftime('%Y-%m-%d 00:00:00', '$fechaF')
+                  GROUP BY TipoTransaccion.idTipotransaccion, TipoTransaccion.nombre, TipoTransaccion.tipo
+                  ORDER BY TipoTransaccion.nombre''';
     final res = await db.rawQuery(consulta);
 
     List<BETransaccion> list = res.isNotEmpty
@@ -212,7 +235,37 @@ class DBProvider {
   return totales;
   }
 
-  Future<BETotalesTransaccion> obtenerTotalesTransaccionesRango(DateTime fechaInicio, DateTime fechaFinal) async {
+  Future<BETotalesTransaccion> obtenerTotalesTransaccionRango(DateTime fechaInicio, DateTime fechaFinal, int tipoTransaccion) async {
+    final db = await database;
+    BETotalesTransaccion totales = new BETotalesTransaccion();
+    String fechaI = fechaInicio.toLocal().toString();
+    String fechaF = fechaFinal.toLocal().toString();
+
+    final String consultaTotales =
+        '''SELECT round(SUM(monto), 2) AS monto
+            FROM $_transaccion_tabla 
+            JOIN $_tipo_transaccion_tabla ON $_transaccion_tabla.idTipoTransaccion = $_tipo_transaccion_tabla.idTipoTransaccion 
+            WHERE DATETIME(fechaDocumento, 'unixepoch', 'localtime') BETWEEN strftime('%Y-%m-%d 00:00:00', '$fechaI') AND strftime('%Y-%m-%d 00:00:00', '$fechaF')
+            AND $_transaccion_tabla.idTipoTransaccion = $tipoTransaccion''';
+    
+    final resTotales = await db.rawQuery(consultaTotales);
+
+    if (resTotales.isNotEmpty) {
+    
+      Map<String, dynamic> mapTotales = resTotales.first;
+
+      if(mapTotales["monto"] != null){
+        totales = new BETotalesTransaccion();
+        totales.totalIngresos = 0;
+        totales.totalGastos = 0;
+        totales.totalDiferencia = double.parse(mapTotales["monto"].toString());
+      }
+    }
+
+  return totales;
+  }
+
+  Future<BETotalesTransaccion> obtenerTotalesTransaccionesRangoGrupo(DateTime fechaInicio, DateTime fechaFinal) async {
     final db = await database;
     BETotalesTransaccion totales = new BETotalesTransaccion();
     String fechaI = fechaInicio.toLocal().toString();

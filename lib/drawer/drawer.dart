@@ -18,10 +18,10 @@ class AppDrawer extends StatelessWidget {
               onTap: () => Navigator.pushReplacementNamed(
                   context, Routes.balanceDiario)),
           _createDrawerItem(
-              text: "Balance Rango",
-              ruta: Routes.balanceRango,
+              text: "Balance Rango Grupo",
+              ruta: Routes.balanceRangoGrupo,
               onTap: () =>
-                  Navigator.pushReplacementNamed(context, Routes.balanceRango)),
+                  Navigator.pushReplacementNamed(context, Routes.balanceRangoGrupo)),
           _createDrawerItem(
               text: "Lista Tipo Transacción",
               ruta: Routes.listaCategoria,
