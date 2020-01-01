@@ -13,7 +13,6 @@ class ListaCategoriasBloc {
   }
 
   final _listaCatBlocCtrl = StreamController<List<BETipoTransaccion>>.broadcast();
-  //final _listaCatBlocCtrl = StreamController<List<BETipoTransaccion>>.broadcast();
 
   Stream<List<BETipoTransaccion>> get listaCategoriasStr => _listaCatBlocCtrl.stream;
 
@@ -31,7 +30,6 @@ class ListaCategoriasBloc {
   
   guardarTipoTransaccion(BETipoTransaccion tipoTransaccion) async{
     await DBProvider.db.guardarTipoTransaccion(tipoTransaccion);
-    //obtenerTiposTransaccionPorTipo();
   }
   
 

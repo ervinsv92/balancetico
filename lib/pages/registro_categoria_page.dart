@@ -59,8 +59,10 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                                   Navigator.of(context).pop();
                                   Navigator.pop(context);
                                 }else{
+                                  
                                   _scaffoldKey.currentState.showSnackBar(
-                                          SnackBar(content: Text('El nombre del tipo de transacción ya existe. Intente de nuevo.'))); 
+                                          SnackBar(content: Text('El tipo de transacción ya tiene registros, eliminelos para continuar.'))); 
+                                  Navigator.pop(context);
                                 }
                             });
                         },
@@ -98,13 +100,8 @@ class _RegistroCategoriaPageState extends State<RegistroCategoriaPage> {
                     height: 2,
                     color: Colors.lightGreen,
                   ),
-                  onChanged: 
-                  _tipoTransaccionParam.idTipoTransaccion == 0 ?
-                  (String newValue) {
-                    setState(() {
-                      _cmbTipoTransaccion = newValue;
-                    });
-                  }:null,
+                  onChanged: null,
+                 
                   items: <String>['Ingreso', 'Gasto']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(

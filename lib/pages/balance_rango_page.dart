@@ -1,4 +1,3 @@
-import 'package:balancetico/drawer/drawer.dart';
 import 'package:balancetico/models/BETotalesTransaccion.dart';
 import 'package:balancetico/models/BETransaccion.dart';
 import 'package:balancetico/providers/db_provider.dart';
@@ -46,7 +45,6 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
       appBar: AppBar(
         title: Text("Balance Rango"),
       ),
-      drawer: AppDrawer(this.rutaActiva),
       body: Container(
         padding: EdgeInsets.only(left: 5.0, right: 5.0),
         child: Column(
@@ -85,9 +83,9 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                                           onPressed: () {
                                             DBProvider.db.borrarTransaccion(_listaTransaccion[i].idTransaccion).then((data) {
                                                 if (data > 0) {
-                                                
-                                                Navigator.of(context).pop();
-                                                setState(() {});
+                                                  Navigator.of(context).pop();
+                                                _obtenerTransaccion();
+                                                _obtenerTotalesTransaccion();
                                               } else {
                                                 _scaffoldKey.currentState
                                                     .showSnackBar(SnackBar(
@@ -116,8 +114,7 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                   )
             ),
             Container(
-            padding: const EdgeInsets.only(top: 110.0),
-            height: 150.0,
+            margin: EdgeInsets.only(bottom: 5.0, left: 15.0),
             child: Column(
                     children: <Widget>[
                       Row(
@@ -126,12 +123,13 @@ class _BalanceRangoPageState extends State<BalanceRangoPage> {
                             "Total:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 16.0,
-                          ),
-                          Text(
-                            formatoNumero.format(_totalesTransaccion.totalDiferencia),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 18.0),
+                            child: Text(
+                              formatoNumero.format(_totalesTransaccion.totalDiferencia),
+                              style: TextStyle(fontSize: 18.0),
+                            ),
                           ),
                           Container(
                             height: 30.0,

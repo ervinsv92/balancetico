@@ -41,8 +41,6 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
                 Icon(Icons.date_range),
                 MaterialButton(
                   color: Theme.of(context).primaryColor,
-                  //minWidth: double.infinity,
-                  //padding: EdgeInsets.all(4.0),
                   child: Text(
                     formatoFecha.format(_fechaInicio),
                     style: TextStyle(fontSize: 16.0),
@@ -73,14 +71,11 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
             ),
             Expanded(child: Container(),),
             Row(
-              //crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Text("Final: "),
                 Icon(Icons.date_range),
                 MaterialButton(
                   color: Theme.of(context).primaryColor,
-                  //minWidth: double.infinity,
-                  //padding: EdgeInsets.all(4.0),
                   child: Text(
                     formatoFecha.format(_fechaFinal),
                     style: TextStyle(fontSize: 16.0),
@@ -164,8 +159,7 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
               ),
             ),
             Container(
-            padding: const EdgeInsets.only(top: 25.0),
-            height: 150.0,
+            margin: EdgeInsets.only(bottom: 5.0, left: 15.0),
             child: FutureBuilder(
                 future: DBProvider.db.obtenerTotalesTransaccionesRangoGrupo(_fechaInicio, _fechaFinal),
                 builder: (BuildContext context,
@@ -180,12 +174,13 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
                             "Ingresos:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 16.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalIngresos),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 18.0),
+                            child: Text(
+                              formatoNumero.format(totales.totalIngresos),
+                              style: TextStyle(fontSize: 18.0),
+                            ),
                           ),
                           Container(
                             height: 30.0,
@@ -198,12 +193,13 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
                             "Gastos:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 28.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalGastos),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 18.0),
+                            child: Text(
+                              formatoNumero.format(totales.totalGastos),
+                              style: TextStyle(fontSize: 18.0),
+                            ),
                           ),
                           Container(
                             height: 30.0,
@@ -216,12 +212,13 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
                             "Diferencia:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 5.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalDiferencia),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 18.0),
+                            child: Text(
+                              formatoNumero.format(totales.totalDiferencia),
+                              style: TextStyle(fontSize: 18.0, color: totales.totalDiferencia >= 0? Colors.green: Colors.red),
+                            ),
                           ),
                           Container(
                             height: 30.0,
@@ -233,7 +230,6 @@ class _BalanceRangoGrupoPageState extends State<BalanceRangoGrupoPage> {
                 }),
           )
           ],
-          
         ),
       ),
     );

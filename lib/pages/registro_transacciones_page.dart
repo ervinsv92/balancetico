@@ -21,10 +21,6 @@ class _RegistroTransaccionesPageState extends State<RegistroTransaccionesPage> {
   BETipoTransaccion _cmbTipoTransaccion;
   List<BETipoTransaccion> _listaTipoTransaccion;
   DateTime _fecha = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toLocal();
-  
-  
-  //Furure<BETipoTransaccion> fuTipoTransaccion;
-  //BETransaccion _transaccion = new BETransaccion();
 
   @override
   void initState() {
@@ -95,12 +91,9 @@ class _RegistroTransaccionesPageState extends State<RegistroTransaccionesPage> {
                 ),
                 Row(
                   children: <Widget>[
-                    //Text(formatoFecha.format(_fecha)),
                     Icon(Icons.date_range),
                     MaterialButton(
                       color: Theme.of(context).primaryColor,
-                      //minWidth: double.infinity,
-                      //padding: EdgeInsets.all(4.0),
                       child: Text(
                         formatoFecha.format(_fecha),
                         style: TextStyle(fontSize: 16.0),

@@ -11,7 +11,7 @@ class AppDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          _crearEncabezado(),
+          _crearEncabezado(context),
           _createDrawerItem(
               text: "Balance Diario",
               ruta: Routes.balanceDiario,
@@ -20,8 +20,8 @@ class AppDrawer extends StatelessWidget {
           _createDrawerItem(
               text: "Balance Rango Grupo",
               ruta: Routes.balanceRangoGrupo,
-              onTap: () =>
-                  Navigator.pushReplacementNamed(context, Routes.balanceRangoGrupo)),
+              onTap: () => Navigator.pushReplacementNamed(
+                  context, Routes.balanceRangoGrupo)),
           _createDrawerItem(
               text: "Lista Tipo Transacción",
               ruta: Routes.listaCategoria,
@@ -32,19 +32,37 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _crearEncabezado() {
+  Widget _crearEncabezado(BuildContext context) {
     return DrawerHeader(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: <Widget>[
-          Icon(Icons.account_balance),
-          Text("Balancetico"),
-        ],
-      ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Icon(Icons.account_balance),
+              Text(
+                "Balancetico",
+                style: TextStyle(
+                    fontSize: 22.0, color: Theme.of(context).primaryColor),
+              ),
+            ],
+          ),
+          Container(
+            alignment: Alignment.topLeft,
+            margin: EdgeInsets.only(top: 10.0),
+            child: Text(
+              "Lleva el control de tus ingresos y gastos.",
+              textAlign: TextAlign.left,
+            ),
+          ),
+          Text("Hecho con Flutter", style: TextStyle(color: Colors.blue))
+        ]
+          )
     );
   }
 
-  Widget _createDrawerItem({String text, String ruta, GestureTapCallback onTap}) {
+  Widget _createDrawerItem(
+      {String text, String ruta, GestureTapCallback onTap}) {
     return ListTile(
       title: Text(text),
       selected: rutaActiva == ruta,

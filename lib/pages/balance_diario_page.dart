@@ -63,12 +63,12 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
                                           ? Colors.green
                                           : Colors.red)),
                           title: Text(transacciones[i].tipoTransaccion.nombre),
-                          //leading: Text("numero 1"),
+                          
                           subtitle: Text(formatoFecha
                               .format(transacciones[i].fechaRegistro)),
-                          //subtitle: Text(transacciones[i].fechaRegistro.toString()),
+                          
                           onTap: () {
-                            //Navigator.pushNamed(context, Routes.registroCategoria,arguments: transacciones[i]);
+                          
                           },
                           onLongPress: () {
                             showDialog(
@@ -117,8 +117,7 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(top: 25.0),
-            height: 150.0,
+            margin: EdgeInsets.only(bottom: 5.0, left: 15.0),
             child: FutureBuilder(
                 future: DBProvider.db.obtenerTotalesTransaccionesDelDia(),
                 builder: (BuildContext context,
@@ -127,19 +126,24 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
 
                   return Column(
                     children: <Widget>[
+                      Container(height: 50.0,),
                       Row(
                         children: <Widget>[
                           Text(
                             "Ingresos:",
                             style: TextStyle(fontSize: 18.0),
+                            
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 16.0,
-                          ),
-                          Text(
+                            alignment: Alignment.centerRight,
+                            margin: EdgeInsets.only(right: 100.0),
+                            child: Text(
                             formatoNumero.format(totales.totalIngresos),
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          ),
+                          
                           Container(
                             height: 30.0,
                           )
@@ -151,12 +155,13 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
                             "Gastos:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 28.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalGastos),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 100.0),
+                            child: Text(
+                              formatoNumero.format(totales.totalGastos),
+                              style: TextStyle(fontSize: 18.0),
+                            ),
                           ),
                           Container(
                             height: 30.0,
@@ -169,12 +174,13 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
                             "Diferencia:",
                             style: TextStyle(fontSize: 18.0),
                           ),
+                          Expanded(child: Container(),),
                           Container(
-                            width: 5.0,
-                          ),
-                          Text(
-                            formatoNumero.format(totales.totalDiferencia),
-                            style: TextStyle(fontSize: 18.0),
+                            margin: EdgeInsets.only(right: 100.0),
+                            child: Text(
+                              formatoNumero.format(totales.totalDiferencia),
+                              style: TextStyle(fontSize: 18.0, color: totales.totalDiferencia >= 0? Colors.green: Colors.red),
+                            ),
                           ),
                           Container(
                             height: 30.0,
@@ -205,7 +211,6 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
                       MaterialPageRoute(
                           builder: (context) =>
                               RegistroTransaccionesPage(tipoTransaccion: "I")));
-                  //Navigator.pushNamed(context, Routes.registroTransacciones, arguments: "I");
                 } else {
                   _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content: Text(
@@ -227,7 +232,6 @@ class _BalanceDiarioPageState extends State<BalanceDiarioPage> {
             onPressed: () {
               DBProvider.db.existenTiposTransaccion("G").then((existe) {
                 if (existe) {
-                  //Navigator.pushNamed(context, Routes.registroTransacciones, arguments: "G");
                   Navigator.push(
                       context,
                       MaterialPageRoute(
